@@ -9,7 +9,7 @@ connectDB();
 
 const cors = require("cors");
 const corsOptions = {
-  origin: "http://localhost:5173", // Update with your client URL
+  origin: "https://saaraa-frontend.vercel.app/", // Update with your client URL
   credentials: true, // This allows cookies to be sent
 };
 app.use(cors(corsOptions));

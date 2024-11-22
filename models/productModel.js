@@ -42,6 +42,10 @@ const productSchema = new mongoose.Schema({
     enum: ["active", "pending", "error"],
     default: "pending",
   },
+  sizes: {
+    type: String,
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
