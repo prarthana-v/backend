@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
+// const clienturl = process.env.CLIENT_URL;
+// console.log(clienturl, "cl");
+
 app.use(cookieParser());
 
 require("dotenv").config();
@@ -9,7 +12,7 @@ connectDB();
 
 const cors = require("cors");
 const corsOptions = {
-  origin: "https://saaraa-frontend.vercel.app", // Update with your client URL
+  origin: "http://localhost:5173 ",
   credentials: true, // This allows cookies to be sent
 };
 app.use(cors(corsOptions));

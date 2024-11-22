@@ -70,6 +70,8 @@ const loginUser = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
+      secure: true,
+      sameSite: "none",
       maxAge: 3 * 60 * 60 * 1000,
     });
 
@@ -121,7 +123,9 @@ const sendVerificationEmail = async (req, res) => {
     // Store token in HTTP-only cookie
     res.cookie("resetToken", resetToken, {
       httpOnly: true,
-      maxAge: 15 * 60 * 1000, // 15 minutes
+      secure: true,
+      sameSite: "none",
+      maxAge: 3 * 60 * 60 * 1000, // 15 minutes
     });
 
     const mailOptions = {
