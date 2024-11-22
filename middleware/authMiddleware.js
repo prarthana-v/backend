@@ -122,6 +122,7 @@ const ISUser = async (req, res, next) => {
 const IsSeller = async (req, res, next) => {
   try {
     const token = req.cookies.token;
+    console.log(token, "token");
 
     if (!token) {
       return res.status(401).json({
@@ -136,7 +137,7 @@ const IsSeller = async (req, res, next) => {
 
     // Fetch the seller from the Seller schema using the decoded ID
     const seller = await sellerModel.findById(decoded.sellerId);
-    // console.log("seller", seller);
+    console.log("seller", seller);
 
     if (!seller) {
       return res.status(401).json({
