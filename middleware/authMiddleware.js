@@ -77,8 +77,9 @@ const Isadmin = async (req, res, next) => {
 };
 const checkAuth = async () => {
   try {
+    console.log(process.env.SERVER_URL);
     const response = await axios.get(
-      `${process.env.SERVER_URL}/api/seller/check-auth`,
+      `${process.env.SERVER_URL}/seller/check-auth`,
       {
         withCredentials: true, // Ensure cookies are sent
       }
