@@ -96,8 +96,8 @@ const loginSeller = async (req, res) => {
 
     // Send the token as a cookie
     res.cookie("token", token, {
-      httpOnly: false, // Ensure false for local development; true in production
-      secure: false, // Set true if using HTTPS in production
+      httpOnly: true, // Ensure false for local development; true in production
+      secure: true, // Set true if using HTTPS in production
       sameSite: "Lax", // Change to "None" with secure: true for cross-site
       maxAge: 3600000, // 1 hour
     });
