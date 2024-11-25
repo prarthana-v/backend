@@ -61,7 +61,7 @@ const loginUser = async (req, res) => {
     }
 
     // Generate access token
-    console.log(user);
+    // console.log(user);
     const token = jwt.sign(
       { id: user._id, role: user.role },
       process.env.JWT_SECRETKEY,
@@ -226,25 +226,24 @@ const resetPassword = async (req, res) => {
   }
 };
 
-const logout = async (req, res) => {
-  // console.log("hello");
-  const token = req.cookies.accessToken; // Use the correct name here
-  console.log("aaa", token);
+// const logout = async (req, res) => {
+//   const token = req.cookies.accessToken; // Use the correct name here
+//   console.log("aaa", token);
 
-  if (!token) {
-    return res.status(400).json({
-      success: false,
-      message: "No token found",
-    });
-  }
+//   if (!token) {
+//     return res.status(400).json({
+//       success: false,
+//       message: "No token found",
+//     });
+//   }
 
-  // Clear the access token cookie
-  res.clearCookie("accessToken");
-  res.status(200).json({
-    success: true,
-    message: "User logged out in successfully",
-  });
-};
+//   // Clear the access token cookie
+//   res.clearCookie("accessToken");
+//   res.status(200).json({
+//     success: true,
+//     message: "User logged out in successfully",
+//   });
+// };
 
 const getProfile = async (req, res) => {
   try {
@@ -386,7 +385,6 @@ module.exports = {
   sendVerificationEmail,
   verifyOtp,
   resetPassword,
-  logout,
   getProfile,
   getadmin,
   getuser,

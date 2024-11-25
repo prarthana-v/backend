@@ -4,10 +4,12 @@ const cloudinary = require("cloudinary");
 const addProduct = async (req, res) => {
   try {
     const sellerId = req.seller._id;
-    const { productName, category, price, description, stock } = req.body;
+    console.log(req.body, "Add product body");
+    console.log(req.files, "Add product files");
+    const { productName, categoryId, price, description, stock } = req.body;
 
     // Validate category
-    const categoryFound = await categoryModel.findById(category);
+    const categoryFound = await categoryModel.findById(categoryId);
     console.log("categoryFound", categoryFound);
 
     if (!categoryFound) {
@@ -172,7 +174,10 @@ const getAllProducts = async (req, res) => {
 
 const getProductsBySeller = async (req, res) => {
   try {
-    const sellerId = req.seller._id;
+    const sellerId = req.seller._id; // Extract sellerId from authenticated seller
+    // console.log(sellerId, "Seller Id");
+
+    // Query products by sellerId
     const products = await productModel.find({ sellerId });
 
     if (!products || products.length === 0) {
@@ -180,6 +185,7 @@ const getProductsBySeller = async (req, res) => {
         .status(404)
         .json({ message: "No products found for this seller." });
     }
+
     res.status(200).json(products);
   } catch (error) {
     console.error(error);

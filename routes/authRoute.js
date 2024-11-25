@@ -6,7 +6,6 @@ const {
   sendVerificationEmail,
   verifyOtp,
   resetPassword,
-  logout,
   getProfile,
   alluser,
   updateUser,
@@ -22,7 +21,7 @@ routes.get("/check-auth", ISUser, getAuth);
 routes.post("/request-reset", sendVerificationEmail);
 routes.get("/verify-otp", verifyOtp);
 routes.post("/reset-password", resetPassword);
-routes.post("/logout", logout);
+// routes.post("/logout", logout);
 routes.get("/profile", ISUser, getProfile);
 routes.get("/allusers", alluser);
 routes.get("/getuser", IsLoggedIn, getuser);

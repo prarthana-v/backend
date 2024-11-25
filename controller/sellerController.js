@@ -96,11 +96,12 @@ const loginSeller = async (req, res) => {
 
     // Send the token as a cookie
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: true, // Set to 'true' in production
-      sameSite: "None", // Adjust as necessary
+      httpOnly: false, // Ensure false for local development; true in production
+      secure: false, // Set true if using HTTPS in production
+      sameSite: "Lax", // Change to "None" with secure: true for cross-site
       maxAge: 3600000, // 1 hour
     });
+    console.log("Cookie set:", req.cookies.token); // Debugging
 
     res.status(200).send({
       success: true,
@@ -263,19 +264,20 @@ const resetPassword = async (req, res) => {
 };
 
 const logout = (req, res) => {
-  if (!req.cookies.verifytoken) {
-    return res.status(400).json({
-      success: false,
-      message: "No seller token found",
-    });
+  try {
+    console.log("Cookies:", req.cookies); // For cookies
+    console.log("Authorization Header:", req.headers.authorization); //
+    // Clear the cookie containing the token
+    res.clearCookie("token", { httpOnly: true, secure: true });
+    return res
+      .status(200)
+      .json({ success: true, message: "Logout successful" });
+  } catch (error) {
+    console.error("Error in logout:", error.message); // Log the error for debugging
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
   }
-
-  res.clearCookie("verifytoken"); // Clear seller token cookie
-
-  res.status(200).json({
-    success: true,
-    message: "Seller logged out successfully",
-  });
 };
 
 module.exports = {

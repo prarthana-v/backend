@@ -6,7 +6,7 @@ const {
   verifyOtp,
   resetPassword,
   logout,
-} = require("../controller/adminController");
+} = require("../controller/sellerController");
 const { checkAuth, IsSeller } = require("../middleware/authMiddleware");
 const { getAuth } = require("../controller/authController");
 const routes = express.Router();
@@ -18,5 +18,4 @@ routes.post("/verify-otp", verifyOtp);
 routes.post("/reset-password", resetPassword);
 routes.post("/logout", logout);
 routes.get("/check-auth", IsSeller, getAuth);
-
 module.exports = routes;

@@ -34,14 +34,15 @@ const upload = multer({ storage: storage });
 router.post(
   "/add-product",
   IsSeller,
-  upload.array("images"),
+  upload.array("images", 5),
   (req, res, next) => {
+    // console.log(req.body, "non-file fields"); // Non-file fields
+    // console.log(req.files, "files"); // Uploaded files
     if (!req.files || req.files.length === 0) {
       return res
         .status(400)
         .json({ success: false, message: "No files uploaded" });
     }
-    console.log("Uploaded files:", req.files); // Debugging
     next(); // Proceed to the addProduct controller
   },
   addProduct

@@ -43,7 +43,7 @@ const productSchema = new mongoose.Schema({
     default: "pending",
   },
   sizes: {
-    type: String,
+    type: [String],
     required: true,
   },
   createdAt: {

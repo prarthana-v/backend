@@ -6,18 +6,25 @@ const orderSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  products: [
+  Items: [
     {
-      product: {
+      productId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
+        ref: "Product", // Reference to the Product model
         required: true,
       },
-      quantity: { type: Number, required: true },
-      price: { type: Number, required: true },
+      quantity: {
+        type: Number,
+        required: true,
+        default: 1,
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
       sellerId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Seller",
+        ref: "seller", // Reference to the Seller model
         required: true,
       },
     },
@@ -25,7 +32,7 @@ const orderSchema = new mongoose.Schema({
   status: {
     type: String,
     default: "Pending",
-    enum: ["Pending", "Completed", "Cancelled"],
+    enum: ["Pending", "Accepted", "Received Back", "Cancelled"],
   },
   purchaseDate: {
     type: Date,
@@ -36,29 +43,8 @@ const orderSchema = new mongoose.Schema({
     required: true, // Sum of all OrderItem totals
   },
   shippingAddress: {
-    addressLine1: { type: String, required: true },
-    addressLine2: { type: String },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    postalCode: { type: String, required: true },
-    country: { type: String, required: true },
-  },
-  deliveryDate: {
-    type: Date,
-  },
-  paymentMethod: {
-    type: String,
-    enum: ["Online Payment", "Cash On Delivery", "Credit Card"],
-    required: true,
-  },
-  paymentStatus: {
-    type: String,
-    enum: ["Pending", "Completed", "Failed"],
-    default: "Pending",
-  },
-  isCOD: {
-    type: Boolean,
-    default: false,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "addresses",
   },
 });
 

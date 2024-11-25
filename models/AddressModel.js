@@ -10,19 +10,19 @@ const AddressSchema = new mongoose.Schema({
   },
   city: {
     type: String,
-    required: true,
+    // required: true,
   },
   state: {
     type: String,
-    required: true,
+    // required: true,
   },
   zipCode: {
     type: Number,
-    required: true,
+    // required: true,
   },
   country: {
     type: String,
-    required: true,
+    // required: true,
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
@@ -30,7 +30,7 @@ const AddressSchema = new mongoose.Schema({
   },
   mobile: {
     type: String,
-    required: true,
+    // required: true,
   },
 });
 

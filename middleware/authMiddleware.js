@@ -25,9 +25,9 @@ const IsLoggedIn = async (req, res, next) => {
       });
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
-    console.log(decoded);
 
     req.user = decoded;
+    // console.log("Decoded JWT payload in IsLoggedIn middleware:", req.user);
     next();
   } catch (error) {
     console.error("Authentication error:", error);
@@ -78,7 +78,7 @@ const Isadmin = async (req, res, next) => {
 const checkAuth = async () => {
   try {
     const response = await axios.get(
-      `http://localhost:5000/api/seller/check-auth`,
+      `${process.env.SERVER_URL}/api/seller/check-auth`,
       {
         withCredentials: true, // Ensure cookies are sent
       }
@@ -122,7 +122,7 @@ const ISUser = async (req, res, next) => {
 const IsSeller = async (req, res, next) => {
   try {
     const token = req.cookies.token;
-    console.log(token, "token");
+    // console.log(token, "token in IsSeller");
 
     if (!token) {
       return res.status(401).json({
@@ -133,11 +133,11 @@ const IsSeller = async (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
-    // console.log(decoded);
+    // console.log("Decoded JWT:", decoded);
 
     // Fetch the seller from the Seller schema using the decoded ID
     const seller = await sellerModel.findById(decoded.sellerId);
-    console.log("seller", seller);
+    // console.log("Seller found:", seller);
 
     if (!seller) {
       return res.status(401).json({
