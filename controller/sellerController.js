@@ -101,7 +101,7 @@ const loginSeller = async (req, res) => {
       sameSite: "None", // Change to "None" with secure: true for cross-site nakar Lax
       maxAge: 3600000, // 1 hour
     });
-    console.log("Cookie set:", req.cookies.token); // Debugging
+    console.log("Cookie set:", req.cookies.sellertoken); // Debugging
 
     res.status(200).send({
       success: true,
