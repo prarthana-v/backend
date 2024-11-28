@@ -1,12 +1,49 @@
 const productModel = require("../models/productModel");
 const categoryModel = require("../models/categoryModel");
 const cloudinary = require("cloudinary");
+
 const addProduct = async (req, res) => {
   try {
-    const sellerId = req.seller._id;
+    const sellerId = req.seller._id; // Assuming seller is authenticated
     console.log(req.body, "Add product body");
     console.log(req.files, "Add product files");
-    const { productName, category, price, description, stock } = req.body;
+
+    // Destructure fields from req.body
+    const {
+      productName,
+      category,
+      mrp,
+      skuid,
+      sizes,
+      price,
+      description,
+      stock,
+      color,
+      sleeveLength,
+      material,
+      occasion,
+      pattern,
+      fit,
+      manufacturerDetails,
+      packerDetails,
+    } = req.body;
+
+    // Check if product name is provided
+    // if (!productName || !category || !price || !description || !stock) {
+    //   return res.status(400).send({
+    //     success: false,
+    //     message:
+    //       "Please provide all required fields: productName, category, price, description, stock.",
+    //   });
+    // }
+
+    // Validate price and stock values
+    if (price <= 0 || stock < 0) {
+      return res.status(400).send({
+        success: false,
+        message: "Price must be greater than 0 and stock cannot be negative.",
+      });
+    }
 
     // Validate category
     const categoryFound = await categoryModel.findById(category);
@@ -15,40 +52,55 @@ const addProduct = async (req, res) => {
     if (!categoryFound) {
       return res.status(400).send({
         success: false,
-        message: "Category not found",
+        message: "Category not found.",
       });
     }
-    if (!req.files) {
-      return res
-        .status(400)
-        .send({ success: false, message: "No files uploaded." });
-    }
-    console.log(req.files);
 
+    // Check if files are uploaded
     if (!req.files || req.files.length === 0) {
-      return res
-        .status(400)
-        .send({ success: false, message: "No files uploaded." });
+      return res.status(400).send({
+        success: false,
+        message: "No files uploaded.",
+      });
     }
+
     // Collect Cloudinary URLs from multer
     const imageUrls = req.files.map((file) => file.path);
 
-    // Create new product with the image URLs
+    // Create new product with the image URLs and other fields
     const newProduct = await productModel.create({
       sellerId,
       productName,
       category: categoryFound._id,
-      categoryName: categoryFound.name,
+      categoryName: categoryFound.categoryName,
       price,
+      mrp,
+      skuid,
       description,
       images: imageUrls,
       stock,
+      sizes,
+      color,
+      sleeveLength,
+      material,
+      occasion,
+      pattern,
+      manufacturerDetails,
+      packerDetails,
     });
 
-    res.status(201).json({ success: true, data: newProduct });
+    res.status(201).json({
+      success: true,
+      message: "Product created successfully.",
+      data: newProduct,
+    });
   } catch (error) {
     console.error("Error in addProduct:", error);
-    res.status(500).json({ success: false, message: "Server error", error });
+    res.status(500).json({
+      success: false,
+      message: "Server error. Please try again later.",
+      error: error.message,
+    });
   }
 };
 // Update product information, including images
@@ -57,7 +109,22 @@ const updateProduct = async (req, res) => {
     console.log("hii");
 
     const productId = req.params.id;
-    const { name, category, price, description, stock } = req.body;
+    const {
+      productName,
+      category,
+      price,
+      description,
+      stock,
+      color,
+      sleeveLength,
+      material,
+      occasion,
+      pattern,
+      fit,
+      manufacturerDetails,
+      packerDetails,
+      sizes,
+    } = req.body;
 
     // Fetch existing product
     const product = await productModel.findById(productId);
@@ -80,13 +147,23 @@ const updateProduct = async (req, res) => {
       imageUrls = req.files.map((file) => file.path);
     }
 
-    // Update product fields
-    product.name = name || product.name;
+    // Update product fields, leaving the current values if no new data is provided
+    product.productName = productName || product.productName;
     product.category = category || product.category;
     product.price = price || product.price;
     product.description = description || product.description;
     product.stock = stock || product.stock;
-    product.images = imageUrls;
+    product.color = color || product.color;
+    product.sleeveLength = sleeveLength || product.sleeveLength;
+    product.material = material || product.material;
+    product.occasion = occasion || product.occasion;
+    product.pattern = pattern || product.pattern;
+    product.fit = fit || product.fit;
+    product.manufacturerDetails =
+      manufacturerDetails || product.manufacturerDetails;
+    product.packerDetails = packerDetails || product.packerDetails;
+    product.sizes = sizes || product.sizes; // Ensure sizes are updated
+    product.images = imageUrls; // Update images to the new ones if provided
 
     // Save the updated product
     await product.save();
@@ -212,6 +289,35 @@ const getProductDetails = async (req, res) => {
   }
 };
 
+const getProductsByCategory = async (req, res) => {
+  try {
+    const categoryName = req.query.categoryName; // Pass categoryName as a query parameter
+    console.log("Category Name:", categoryName);
+
+    if (!categoryName) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Category name is required." });
+    }
+
+    const products = await productModel.find({
+      categoryName: categoryName, // Case-insensitive match
+    });
+
+    if (products.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No products found for this category.",
+      });
+    }
+
+    res.status(200).json({ success: true, data: products });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error", error });
+  }
+};
+
 module.exports = {
   addProduct,
   updateProduct,
@@ -220,4 +326,5 @@ module.exports = {
   getAllProducts,
   getProductsBySeller,
   getProductDetails,
+  getProductsByCategory,
 };

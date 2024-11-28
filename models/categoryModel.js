@@ -7,22 +7,22 @@ const categorySchema = new mongoose.Schema({
     ref: "seller", // Reference to the Seller model
     required: true,
   },
-  name: {
+  categoryName: {
     type: String,
     required: true,
     unique: true,
     trim: true,
     maxlength: 100,
+    default: "",
   },
   // description: {
   //   type: String,
   //   trim: true,
   //   maxlength: 500,
   // },
-  // image: {
-  //   type: String,
-  //   required: true,
-  // },
+  image: {
+    type: String,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

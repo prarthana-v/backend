@@ -6,35 +6,58 @@ const cloudinary = require("cloudinary");
 const addCategory = async (req, res) => {
   try {
     const sellerId = req.seller._id;
-    console.log(req.seller);
 
-    const { name } = req.body;
-    // console.log(req.file);
-    // const image = req.file ? req.file.path : null;
+    const { categoryName } = req.body;
+    console.log("Category Name:", categoryName);
 
-    const existingCategory = await categoryModel.findOne({ name });
+    if (!categoryName || categoryName.trim() === "") {
+      return res.status(400).send({
+        success: false,
+        message: "Category name is required",
+      });
+    }
+
+    const existingCategory = await categoryModel.findOne({
+      categoryName: categoryName.trim(),
+    });
+
+    const image = req.file ? req.file.path : "";
+    console.log(image, "image");
+
     if (existingCategory) {
       return res.status(400).send({
         success: false,
         message: "Category name already exists",
       });
     }
-    let category = new categoryModel({ sellerId, name });
+
+    let category = new categoryModel({
+      sellerId,
+      categoryName: categoryName.trim(),
+      image,
+    });
+    console.log(category, "category");
 
     category = await category.save();
+
     if (!category) {
       return res.status(400).send({
-        sucees: false,
+        success: false,
         message: "Category not created",
       });
     }
+
     res.status(201).send({
       success: true,
       message: "Category created successfully",
       category,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error); // Log error to console
+    res.status(500).send({
+      success: false,
+      message: "Server error, please try again later.",
+    });
   }
 };
 

@@ -37,8 +37,8 @@ router.post(
   IsSeller,
   upload.array("images", 5),
   (req, res, next) => {
-    // console.log(req.body, "non-file fields"); // Non-file fields
-    // console.log(req.files, "files"); // Uploaded files
+    console.log(req.body, "non-file fields"); // Non-file fields
+    console.log(req.files, "files"); // Uploaded files
     if (!req.files || req.files.length === 0) {
       return res
         .status(400)
@@ -68,5 +68,5 @@ router.get("/get-product", IsSeller, getSingleProduct);
 router.get("/getproductDetails/:id", getProductDetails);
 router.get("/getallproducts", getAllProducts);
 router.get("/getproductsbyseller", IsSeller, getProductsBySeller);
-
+router.get("/by-category", getProductsByCategory);
 module.exports = router;
