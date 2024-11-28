@@ -126,7 +126,7 @@ const ISUser = async (req, res, next) => {
 };
 const IsSeller = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    const token = req.cookies.sellertoken;
     console.log(token, "token in IsSeller");
 
     if (!token) {

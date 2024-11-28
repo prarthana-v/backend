@@ -95,7 +95,7 @@ const loginSeller = async (req, res) => {
     });
 
     // Send the token as a cookie
-    res.cookie("token", token, {
+    res.cookie("sellertoken", token, {
       httpOnly: true, // Ensure false for local development; true in production
       secure: true, // Set true if using HTTPS in production
       sameSite: "None", // Change to "None" with secure: true for cross-site nakar Lax

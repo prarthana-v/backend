@@ -6,10 +6,10 @@ const addProduct = async (req, res) => {
     const sellerId = req.seller._id;
     console.log(req.body, "Add product body");
     console.log(req.files, "Add product files");
-    const { productName, categoryId, price, description, stock } = req.body;
+    const { productName, category, price, description, stock } = req.body;
 
     // Validate category
-    const categoryFound = await categoryModel.findById(categoryId);
+    const categoryFound = await categoryModel.findById(category);
     console.log("categoryFound", categoryFound);
 
     if (!categoryFound) {
