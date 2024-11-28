@@ -18,10 +18,11 @@ const IsLoggedIn = async (req, res, next) => {
   try {
     // Retrieve token from the request headers or cookies
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+    console.log("Token in IsLoggedIn", token);
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "You need to log in to access this resource.",
+        message: "You need to log in to access this resource for cart.",
       });
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
@@ -95,15 +96,18 @@ const checkAuth = async () => {
 
 const ISUser = async (req, res, next) => {
   try {
-    const token = req.cookies.accessToken;
+    const token = req.cookies.token;
+    console.log("Token in User", token);
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "You need to log in to access this resource.",
+        message: "You need to log in to access this resources , hii prarthana.",
       });
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+    // console.log(decoded);
     const user = await userModel.findById(decoded.id);
+    // console.log(user, "IsUser");
     if (!user) {
       return res.status(401).json({
         success: false,

@@ -54,7 +54,7 @@ const loginUser = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log(isMatch);
+    // console.log(isMatch);
 
     if (!isMatch) {
       return res.status(401).send({ message: "Invalid credentials" });
@@ -69,11 +69,12 @@ const loginUser = async (req, res) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      httpOnly: false,
+      secure: false,
+      sameSite: "Lax",
       maxAge: 3 * 60 * 60 * 1000,
     });
+    console.log("Cookie set:", req.cookies.token);
 
     return res
       .status(200)
@@ -285,7 +286,7 @@ const getuser = async (req, res) => {
   }
 };
 const getAuth = async (req, res) => {
-  console.log(req.seller);
+  console.log(req.user);
   let seller = req.seller;
   try {
     res.status(200).json({

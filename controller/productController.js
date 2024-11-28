@@ -51,7 +51,6 @@ const addProduct = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error", error });
   }
 };
-
 // Update product information, including images
 const updateProduct = async (req, res) => {
   try {
@@ -136,7 +135,7 @@ const deleteProduct = async (req, res) => {
 
 const getSingleProduct = async (req, res) => {
   try {
-    const productId = req.query.id;
+    const productId = req.query.productId;
 
     // Find the product by ID
     const product = await productModel.findById(productId);
@@ -158,6 +157,8 @@ const getAllProducts = async (req, res) => {
   try {
     // Find the products
     const products = await productModel.find({});
+    // console.log(products);
+
     if (!products) {
       return res
         .status(404)
@@ -195,6 +196,22 @@ const getProductsBySeller = async (req, res) => {
   }
 };
 
+const getProductDetails = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await productModel.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   addProduct,
   updateProduct,
@@ -202,4 +219,5 @@ module.exports = {
   getSingleProduct,
   getAllProducts,
   getProductsBySeller,
+  getProductDetails,
 };

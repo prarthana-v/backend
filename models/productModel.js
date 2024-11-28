@@ -50,6 +50,11 @@ const productSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  discount: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
   // rating: [
   //   {
   //     type: mongoose.Schema.Types.ObjectId,

@@ -7,6 +7,7 @@ const {
   getAllProducts,
   getProductsByCategory,
   getProductsBySeller,
+  getProductDetails,
 } = require("../controller/productController");
 const router = express.Router();
 const cloudinary = require("cloudinary").v2;
@@ -64,6 +65,7 @@ router.put(
 // Delete product route
 router.delete("/delete-product", IsSeller, deleteProduct);
 router.get("/get-product", IsSeller, getSingleProduct);
+router.get("/getproductDetails/:id", getProductDetails);
 router.get("/getallproducts", getAllProducts);
 router.get("/getproductsbyseller", IsSeller, getProductsBySeller);
 
