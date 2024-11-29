@@ -96,9 +96,9 @@ const loginSeller = async (req, res) => {
 
     // Send the token as a cookie
     res.cookie("sellertoken", token, {
-      httpOnly: false, // Ensure false for local development; true in production
-      secure: false, // Set true if using HTTPS in production
-      sameSite: "Lax", // Change to "Nssone" with secure: true for cross-site nakar Lax
+      httpOnly: true, // Ensure false for local development; true in production
+      secure: true, // Set true if using HTTPS in production
+      sameSite: "None", // Change to "None" with secure: true for cross-site nakar Lax
       maxAge: 3600000, // 1 hour
     });
     console.log("Cookie set:", req.cookies.sellertoken); // Debugging
@@ -265,8 +265,7 @@ const resetPassword = async (req, res) => {
 
 const logout = (req, res) => {
   try {
-    console.log("Cookies:", req.cookies); // For cookies
-    console.log("Authorization Header:", req.headers.authorization); //
+    console.log("Cookies:", req.cookies, "sellerlogout"); // For cookies
     // Clear the cookie containing the token
     res.clearCookie("token", { httpOnly: true, secure: true });
     return res

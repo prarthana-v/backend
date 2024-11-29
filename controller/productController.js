@@ -292,7 +292,7 @@ const getProductDetails = async (req, res) => {
 const getProductsByCategory = async (req, res) => {
   try {
     const categoryName = req.query.categoryName; // Pass categoryName as a query parameter
-    console.log("Category Name:", categoryName);
+    // console.log("Category Name:", categoryName);
 
     if (!categoryName) {
       return res

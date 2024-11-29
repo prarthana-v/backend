@@ -57,7 +57,7 @@ const loginUser = async (req, res) => {
     // console.log(isMatch);
 
     if (!isMatch) {
-      return res.status(401).send({ message: "Invalid credentials" });
+      return res.status(401).send({ message: "Invalid Password" });
     }
 
     // Generate access token
@@ -69,9 +69,9 @@ const loginUser = async (req, res) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: false,
-      secure: false,
-      sameSite: "Lax",
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
       maxAge: 3 * 60 * 60 * 1000,
     });
     console.log("Cookie set:", req.cookies.token);
@@ -248,7 +248,7 @@ const resetPassword = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    const token = req.cookies.accessToken;
+    const token = req.cookies.token;
     // console.log("Token from cookies:", token); // This should log the token if it's set correctly
     if (!token) return res.status(401).send("Unauthorized");
 
@@ -378,7 +378,21 @@ const updateUser = async (req, res) => {
     });
   }
 };
-
+const logout = async (req, res) => {
+  try {
+    console.log("Cookies:", req.cookies.token, "logout"); // For cookies
+    // Clear the cookie containing the token
+    res.clearCookie("token", { httpOnly: true, secure: true });
+    return res
+      .status(200)
+      .json({ success: true, message: "Logout successful" });
+  } catch (error) {
+    console.error("Error in logout:", error.message); // Log the error for debugging
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server Error" });
+  }
+};
 module.exports = {
   registerUser,
   loginUser,
@@ -391,4 +405,5 @@ module.exports = {
   getuser,
   alluser,
   updateUser,
+  logout,
 };
