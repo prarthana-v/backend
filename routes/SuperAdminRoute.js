@@ -4,13 +4,13 @@ const {
   loginSuperadminHandler,
   verifySecretKey,
   verifySuperAdmin,
-} = require("../../controller/SuperAdminCt/SuperAdminController");
+} = require("../controller/SuperAdminCt/SuperAdminController");
 const {
   authenticateJWT,
   authorizeSuperadmin,
   Isadmin,
   IsAdmin,
-} = require("../../middleware/authMiddleware");
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
 

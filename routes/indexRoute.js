@@ -8,7 +8,7 @@ routes.use("/api/product", require("./productRoute"));
 routes.use("/api/cart", require("../routes/CartRoute"));
 routes.use("/api/orders", require("./orderRoute"));
 routes.use("/api/subcategory", require("./subcategoryRoute"));
-const SuperAdminroute = require("./superAdminRt/SuperAdminRoute");
+const SuperAdminroute = require("./SuperAdminRoute");
 routes.use("/api/superAdmin", SuperAdminroute);
 
 module.exports = routes;
