@@ -28,18 +28,36 @@ const storage = new CloudinaryStorage({
     allowed_formats: ["jpg", "png", "jpeg"],
   },
 });
-const upload = multer({ storage: storage });
-router.post("/add-category", thatverified, addCategory);
-router.get("/categories", IsAdmin, getCategories);
-router.delete("/delete-category", IsAdmin, deleteCategory);
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
+
+router.post(
+  "/add-category",
+  IsAdmin,
+  upload.single("categoryImage"), // Match frontend field name
+  async (req, res) => {
+    console.log("Received body:", req.body);
+    console.log("Received file:", req.file);
+    await addCategory(req, res); // Pass req, res to the addCategory controller
+  }
+);
+
+router.get("/categories", getCategories);
+router.delete("/delete-category/:id", thatverified, deleteCategory);
 
 router.put(
   "/update-category",
-  IsAdmin,
-  upload.single("image"),
-  updatedCategory
+  thatverified,
+  upload.single("categoryImage"),
+  async (req, res) => {
+    console.log("Received body:", req.body);
+    console.log("Received file:", req.file);
+    await updatedCategory(req, res);
+  }
 );
 
-router.get("/getCategory", getCategoryById);
+router.get("/getCategory/:id", getCategoryById);
 
 module.exports = router;

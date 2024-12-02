@@ -9,7 +9,7 @@ const addCategory = async (req, res) => {
     console.log(superadminId);
 
     const { categoryName } = req.body;
-    console.log("Category Name:", categoryName);
+    console.log("Category Name:", req.body);
 
     if (!categoryName || categoryName.trim() === "") {
       return res.status(400).send({
@@ -95,8 +95,8 @@ const getPublicIdFromUrl = (url) => {
 };
 const deleteCategory = async (req, res) => {
   try {
-    const categoryId = req.query.id;
-    console.log(req.query);
+    const categoryId = req.params.id;
+    console.log(req.body, req.query, req.params);
 
     const category = await categoryModel.findById(categoryId);
     if (!category) {
@@ -131,18 +131,18 @@ const deleteCategory = async (req, res) => {
 
 const updatedCategory = async (req, res) => {
   try {
-    const categoryId = req.query.id; // Get category ID from query
-    const { name, description, image } = req.body; // New category data from request body
+    const { id, categoryName, categoryImage } = req.body;
+    console.log(req.params, req.body);
 
     const category = await categoryModel.findById(categoryId);
+    console.log(category);
     if (!category) {
       return res
         .status(404)
         .json({ success: false, message: "Category not found" });
     }
 
-    // Check if a new image URL is provided and differs from the existing one
-    if (image && image !== category.image) {
+    if (categoryImage && categoryImage !== category.image) {
       // Delete the old image from Cloudinary
       const publicId = getPublicIdFromUrl(category.image);
       if (publicId) {
@@ -155,12 +155,11 @@ const updatedCategory = async (req, res) => {
         );
       }
       // Update the category image to the new URL
-      category.image = image;
+      category.image = categoryImage;
     }
 
     // Update other fields
-    if (name) category.name = name;
-    if (description) category.description = description;
+    if (categoryName) category.name = categoryName;
 
     // Save the updated category
     const updatedCategory = await category.save();
@@ -178,7 +177,7 @@ const updatedCategory = async (req, res) => {
 
 const getCategoryById = async (req, res) => {
   try {
-    const categoryId = req.query.id;
+    const categoryId = req.params.id;
     const category = await categoryModel.findById(categoryId);
     if (!category) {
       return res

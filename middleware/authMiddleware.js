@@ -47,10 +47,10 @@ const IsAdmin = async (req, res, next) => {
         message: "You need to log in to super admin to access this resource.",
       });
     }
-    console.log(token, "Token received for super admin");
+    // console.log(token, "Token received for super admin");
 
     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
-    console.log(decoded, "Decoded JWT");
+    // console.log(decoded, "Decoded JWT");
 
     const user = await userModel.findById(decoded.superadminId);
     if (!user) {
@@ -59,7 +59,7 @@ const IsAdmin = async (req, res, next) => {
         message: "Super Admin not found. Please log in again.",
       });
     }
-    console.log(user);
+    // console.log(user);
 
     if (user.role !== "superadmin") {
       return res.status(403).json({
@@ -86,13 +86,13 @@ const IsAdmin = async (req, res, next) => {
 const thatverified = async (req, res, next) => {
   try {
     const token = req.cookies.superverifiedtoken;
+    console.log(token, req.cookies, "Token received add category");
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "You need to log in to super admin to access this resource.",
+        message: "You need to log in to add category.",
       });
     }
-    console.log(token, "Token received for super admin");
 
     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
     console.log(decoded, "Decoded JWT");
@@ -119,7 +119,7 @@ const thatverified = async (req, res, next) => {
     // Log to ensure next() is reached
     console.log("Admin verified. Proceeding to next middleware.");
 
-    next(); // Proceed to addCategory handler
+    next(); // Correctly proceed to the next middleware
   } catch (error) {
     console.log(error, "Error in verifying or processing token");
     return res.status(401).json({
