@@ -5,7 +5,8 @@ const cloudinary = require("cloudinary");
 
 const addCategory = async (req, res) => {
   try {
-    const sellerId = req.seller._id;
+    const superadminId = req.user._id;
+    console.log(superadminId);
 
     const { categoryName } = req.body;
     console.log("Category Name:", categoryName);
@@ -32,7 +33,7 @@ const addCategory = async (req, res) => {
     }
 
     let category = new categoryModel({
-      sellerId,
+      superadminId,
       categoryName: categoryName.trim(),
       image,
     });

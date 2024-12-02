@@ -1,24 +1,28 @@
-const SubcategoryModel = require("../models/categoryModel");
+const SubcategoryModel = require("../models/subcategoryModel");
 const categoryModel = require("../models/categoryModel");
 
 const addSubcategory = async (req, res) => {
   try {
-    const sellerId = req.seller._id;
-    const { categoryId, name } = req.body;
+    const superadminId = req.superadmin.id;
+    const { categoryId, subcategoryName } = req.body;
+    console.log(req.superadmin, req.body, req.file, "a");
 
     // Ensure both categoryId and name are provided
-    if (!categoryId || !name) {
-      return res.status(400).json({ message: "All fields are required." });
+    if (!categoryId || !subcategoryName) {
+      return res.status(400).send({ message: "All fields are required." });
     }
 
     // Check if the category exists
     const category = await categoryModel.findById(categoryId);
+    console.log(category, "cat");
     if (!category) {
       return res.status(400).json({ message: "Category not found." });
     }
 
     // Check if the subcategory already exists
-    const existingSubcategory = await SubcategoryModel.findOne({ name });
+    const existingSubcategory = await SubcategoryModel.findOne({
+      subcategoryName,
+    });
     if (existingSubcategory) {
       return res.status(400).send({
         success: false,
@@ -26,15 +30,22 @@ const addSubcategory = async (req, res) => {
       });
     }
 
+    const image = req.file ? req.file.path : "";
+    console.log(image, "image");
+
     // Create the new subcategory, including the categoryId
     const subcategory = await SubcategoryModel.create({
-      sellerId,
+      superadminId,
       categoryId, // Make sure to pass the categoryId here
-      name,
+      subcategoryName,
+      image,
     });
-
+    console.log(subcategory, "subcategory");
     // Populate the categoryId field with the corresponding category details
-    const populatedSubcategory = await subcategory.populate("categoryId");
+    const populatedSubcategory = await subcategory.populate(
+      "categoryId",
+      "categoryName image"
+    );
 
     // Return the populated subcategory
     res.status(201).json({
@@ -50,9 +61,9 @@ const addSubcategory = async (req, res) => {
 // Get All Subcategories
 const getAllSubcategories = async (req, res) => {
   try {
-    const subcategories = await Subcategory.find()
-      .populate("sellerId", "name email") // Populate seller details if needed
-      .populate("categoryId", "name"); // Populate category details
+    const subcategories = await SubcategoryModel.find()
+      .populate("superadminId", "name email") // Populate seller details if needed
+      .populate("categoryId", "categoryName image"); // Populate category details
 
     res.status(200).json(subcategories);
   } catch (error) {

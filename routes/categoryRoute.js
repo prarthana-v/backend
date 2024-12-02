@@ -1,5 +1,9 @@
 const express = require("express");
-const { IsSeller } = require("../middleware/authMiddleware");
+const {
+  Isadmin,
+  IsAdmin,
+  thatverified,
+} = require("../middleware/authMiddleware");
 const router = express.Router();
 const {
   addCategory,
@@ -25,13 +29,13 @@ const storage = new CloudinaryStorage({
   },
 });
 const upload = multer({ storage: storage });
-router.post("/add-category", IsSeller, upload.single("image"), addCategory);
-router.get("/categories", getCategories);
-router.delete("/delete-category", IsSeller, deleteCategory);
+router.post("/add-category", thatverified, addCategory);
+router.get("/categories", IsAdmin, getCategories);
+router.delete("/delete-category", IsAdmin, deleteCategory);
 
 router.put(
   "/update-category",
-  IsSeller,
+  IsAdmin,
   upload.single("image"),
   updatedCategory
 );

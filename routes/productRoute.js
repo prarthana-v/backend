@@ -13,7 +13,7 @@ const router = express.Router();
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const multer = require("multer");
-const { IsSeller } = require("../middleware/authMiddleware");
+const { IsSeller, thatverified } = require("../middleware/authMiddleware");
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

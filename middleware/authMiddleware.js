@@ -38,25 +38,30 @@ const IsLoggedIn = async (req, res, next) => {
     });
   }
 };
-const Isadmin = async (req, res, next) => {
+const IsAdmin = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    const token = req.cookies.superverifiedtoken;
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "You need to log in to access this resource.",
+        message: "You need to log in to super admin to access this resource.",
       });
     }
-    const decoded = jwt.verify(token, process.env.SECRET_KEY_JWT);
-    const user = await User.findById(decoded.id);
+    console.log(token, "Token received for super admin");
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+    console.log(decoded, "Decoded JWT");
+
+    const user = await userModel.findById(decoded.superadminId);
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "User not found. Please log in again.",
+        message: "Super Admin not found. Please log in again.",
       });
     }
+    console.log(user);
 
-    if (user.role !== "admin") {
+    if (user.role !== "superadmin") {
       return res.status(403).json({
         success: false,
         message: "Access denied. Admins only.",
@@ -66,10 +71,57 @@ const Isadmin = async (req, res, next) => {
     // Attach user to the request object
     req.user = user;
 
-    // Continue to the next middleware or route
-    next();
+    // Log to ensure next() is reached
+    console.log("Admin verified. Proceeding to next middleware.");
+
+    next(); // Proceed to addCategory handler
   } catch (error) {
-    console.log(error);
+    console.log(error, "Error in verifying or processing token");
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token. Please log in again.",
+    });
+  }
+};
+const thatverified = async (req, res, next) => {
+  try {
+    const token = req.cookies.superverifiedtoken;
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "You need to log in to super admin to access this resource.",
+      });
+    }
+    console.log(token, "Token received for super admin");
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+    console.log(decoded, "Decoded JWT");
+
+    const user = await userModel.findById(decoded.superadminId);
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Super Admin not found. Please log in again.",
+      });
+    }
+    console.log(user);
+
+    if (user.role !== "superadmin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Admins only.",
+      });
+    }
+
+    // Attach user to the request object
+    req.user = user;
+
+    // Log to ensure next() is reached
+    console.log("Admin verified. Proceeding to next middleware.");
+
+    next(); // Proceed to addCategory handler
+  } catch (error) {
+    console.log(error, "Error in verifying or processing token");
     return res.status(401).json({
       success: false,
       message: "Invalid or expired token. Please log in again.",
@@ -163,11 +215,61 @@ const IsSeller = async (req, res, next) => {
     });
   }
 };
+
+// Middleware to check if the superadmin is logged in
+const authenticateJWT = (req, res, next) => {
+  const token =
+    req.cookies.superloggedtoken || req.header("Authorization")?.split(" ")[1];
+
+  if (!token) {
+    return res
+      .status(401)
+      .send({ error: "No token provided. Please login first." });
+  }
+
+  // Verify the token
+  jwt.verify(token, process.env.JWT_SECRETKEY, (err, user) => {
+    if (err) {
+      return res.status(403).send({ error: "Invalid or expired token." });
+    }
+    // console.log(user, "super admin details");
+    // If the token is valid, attach the user (superadmin info) to the request
+    req.superadmin = user;
+    next(); // Proceed to the next middleware or the route handler
+  });
+};
+
+const authorizeSuperadmin = async (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res
+      .status(401)
+      .send({ success: false, message: "Please login first." });
+  }
+  // console.log(token);
+  const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+  // console.log(decoded);
+  const user = await userModel.findById(decoded.id);
+  // console.log(user);
+
+  console.log(user.role);
+  if (user.role !== "superadmin") {
+    return res.status(401).send({
+      success: false,
+      message: "You are not authorized to access super admin.",
+    });
+  }
+  next();
+};
+
 module.exports = {
   verifyToken,
   ISUser,
   IsSeller,
-  Isadmin,
+  IsAdmin,
   IsLoggedIn,
   checkAuth,
+  authenticateJWT,
+  authorizeSuperadmin,
+  thatverified,
 };

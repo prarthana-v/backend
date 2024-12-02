@@ -13,7 +13,12 @@ const {
   getadmin,
   logout,
 } = require("../controller/authController");
-const { ISUser, IsLoggedIn, Isadmin } = require("../middleware/authMiddleware");
+const {
+  ISUser,
+  IsLoggedIn,
+  Isadmin,
+  IsAdmin,
+} = require("../middleware/authMiddleware");
 const routes = express.Router();
 
 routes.post("/register", registerUser);
@@ -26,7 +31,7 @@ routes.get("/profile", ISUser, getProfile);
 routes.get("/allusers", alluser);
 routes.get("/getuser", IsLoggedIn, getuser);
 routes.post("/update-user", IsLoggedIn, updateUser);
-routes.post("/check-admin", Isadmin, getadmin);
+routes.post("/check-admin", IsAdmin, getadmin);
 routes.post("/logout", logout);
 
 module.exports = routes;
