@@ -4,8 +4,14 @@ const {
   addSubcategory,
   getAllSubcategories,
   deleteSubcategory,
+  updateSubcategory,
+  reorderSubcategories,
 } = require("../controller/subcategorycontroller");
-const { Isadmin, IsAdmin } = require("../middleware/authMiddleware");
+const {
+  Isadmin,
+  IsAdmin,
+  thatverified,
+} = require("../middleware/authMiddleware");
 
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
@@ -29,7 +35,12 @@ const upload = multer({ storage: storage });
 router.post(
   "/add-subcategory",
   IsAdmin,
-  upload.single("image"),
+  upload.single("subcategoryImage"),
+  (req, res, next) => {
+    // console.log(req.body, "non-file fields"); // Non-file fields
+    // console.log(req.file, "files"); // Uploaded files
+    next(); // Proceed to the addProduct controller
+  },
   addSubcategory
 );
 
@@ -37,6 +48,20 @@ router.post(
 router.get("/getsubcategories", getAllSubcategories);
 
 // Route to delete a subcategory by ID
-router.delete("/delete", IsAdmin, deleteSubcategory);
+router.delete("/delete-subcategory/:id", thatverified, deleteSubcategory);
+
+router.put(
+  "/update-subcategory/:id",
+  thatverified,
+  upload.single("subcategoryImage"), // Middleware for image upload
+  (req, res, next) => {
+    console.log(req.body, "non-file fields"); // Non-file fields
+    console.log(req.file, "file"); // Uploaded files
+    next(); // Proceed to the addProduct controller
+  },
+  updateSubcategory
+);
+
+router.post("/reorder-subcategories", reorderSubcategories);
 
 module.exports = router;

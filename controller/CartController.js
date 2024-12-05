@@ -207,7 +207,8 @@ const clearCart = async (req, res) => {
 const deleteCartItem = async (req, res) => {
   try {
     const userId = req.user.id; // Assuming userId is available from authentication
-    const { cartItemId } = req.query; // Correct query parameter extraction
+    const cartItemId = req.body.id; // Correct query parameter extraction
+    console.log(req.body);
 
     // Find the user's cart
     let cart = await Cart.findOne({ userId }).populate("cartitems");
@@ -248,7 +249,7 @@ const deleteCartItem = async (req, res) => {
     // Recalculate discount and total discounted price
     cart.discount = cart.cartitems.reduce(
       (acc, item) =>
-        acc + (item.totalPrice * (item.product.discount || 0)) / 100,
+        acc + (item.totalPrice * (item?.product?.discount || 0)) / 100,
       0
     );
     cart.totalDiscountedPrice = cart.cartTotalAmt - cart.discount;
@@ -274,8 +275,8 @@ const deleteCartItem = async (req, res) => {
 const updateItemInCart = async (req, res) => {
   try {
     const userId = req.user.id;
-    const productId = req.query.productId;
-    const { quantity } = req.body;
+    const { productId, quantity } = req.body;
+    console.log(req.body);
 
     // Validate product and quantity
     if (isNaN(quantity) || quantity <= 0) {
@@ -296,7 +297,7 @@ const updateItemInCart = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: "Product not found",
+        message: "Product not found!!",
       });
     }
 
@@ -316,11 +317,14 @@ const updateItemInCart = async (req, res) => {
       await existingItem.save();
     } else {
       // Add new item to the cart if it doesn't exist
-      const newCartItem = new CartItem({
-        productId,
-        quantity: Number(quantity),
-        totalPrice: price * Number(quantity),
-      });
+      const newCartItem = new CartItem(
+        {
+          productId,
+          quantity: Number(quantity),
+          totalPrice: price * Number(quantity),
+        },
+        { new: true }
+      );
 
       await newCartItem.save();
       cart.cartitems.push(newCartItem);

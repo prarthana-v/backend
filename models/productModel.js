@@ -12,12 +12,21 @@ const productSchema = new mongoose.Schema({
     trim: true,
     maxlength: 100,
   },
-  category: {
+  categoryId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Category", // Reference to the Category model
+    ref: "Category",
     required: true,
   },
   categoryName: {
+    type: String,
+    required: true,
+  },
+  subcategoryId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Subcategory",
+    required: true,
+  },
+  subcategoryName: {
     type: String,
     required: true,
   },
@@ -51,9 +60,11 @@ const productSchema = new mongoose.Schema({
   status: {
     type: String,
     default: "active",
+    enum: ["active", "pending", "paused", "inactive"],
   },
   sizes: {
     type: [String],
+    required: true,
   },
   createdAt: {
     type: Date,
@@ -63,7 +74,6 @@ const productSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  // Additional fields as per your requirement
   color: {
     type: String,
   },

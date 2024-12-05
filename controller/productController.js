@@ -1,85 +1,99 @@
 const productModel = require("../models/productModel");
 const categoryModel = require("../models/categoryModel");
+const subcategoryModel = require("../models/subcategoryModel");
 const cloudinary = require("cloudinary");
-
 const addProduct = async (req, res) => {
   try {
-    const sellerId = req.seller._id; // Assuming seller is authenticated
-    console.log(req.body, "Add product body");
-    console.log(req.files, "Add product files");
-
-    // Destructure fields from req.body
+    const sellerId = req.seller._id; // Authenticated seller ID
     const {
       productName,
       category,
+      subcategory, // Added subcategory
+      price,
       mrp,
       skuid,
-      sizes,
-      price,
       description,
       stock,
+      sizes,
       color,
       sleeveLength,
       material,
       occasion,
       pattern,
-      fit,
       manufacturerDetails,
       packerDetails,
     } = req.body;
 
-    // Check if product name is provided
-    // if (!productName || !category || !price || !description || !stock) {
-    //   return res.status(400).send({
-    //     success: false,
-    //     message:
-    //       "Please provide all required fields: productName, category, price, description, stock.",
-    //   });
-    // }
+    // Validate required fields
+    if (
+      !productName ||
+      !category ||
+      !price ||
+      !description ||
+      stock == null ||
+      !skuid ||
+      !mrp
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Missing required fields: productName, category, price, mrp, skuid, description, or stock.",
+      });
+    }
 
-    // Validate price and stock values
+    // Validate price and stock
     if (price <= 0 || stock < 0) {
-      return res.status(400).send({
+      return res.status(400).json({
         success: false,
         message: "Price must be greater than 0 and stock cannot be negative.",
       });
     }
 
-    // Validate category
+    // Convert sizes to an array if it's a comma-separated string
+    const sizesArray = typeof sizes === "string" ? sizes.split(",") : sizes;
+
+    // Check category and subcategory existence
     const categoryFound = await categoryModel.findById(category);
-    console.log("categoryFound", categoryFound);
-
     if (!categoryFound) {
-      return res.status(400).send({
-        success: false,
-        message: "Category not found.",
-      });
+      return res
+        .status(404)
+        .json({ success: false, message: "Category not found." });
     }
 
-    // Check if files are uploaded
+    const subcategoryFound = subcategory
+      ? await subcategoryModel.findById(subcategory)
+      : null;
+
+    if (subcategory && !subcategoryFound) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Subcategory not found." });
+    }
+
+    // Validate file uploads
     if (!req.files || req.files.length === 0) {
-      return res.status(400).send({
-        success: false,
-        message: "No files uploaded.",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "No files uploaded." });
     }
 
-    // Collect Cloudinary URLs from multer
-    const imageUrls = req.files.map((file) => file.path);
+    const imageUrls = req.files.map((file) => file.path); // Collect image URLs
 
-    // Create new product with the image URLs and other fields
+    // Create new product
     const newProduct = await productModel.create({
       sellerId,
       productName,
-      category: categoryFound._id,
+      categoryId: categoryFound._id,
       categoryName: categoryFound.categoryName,
+      subcategoryId: subcategoryFound?._id || null,
+      subcategoryName: subcategoryFound?.subcategoryName || null,
       price,
       mrp,
       skuid,
       description,
       images: imageUrls,
       stock,
-      sizes,
+      sizes: sizesArray,
       color,
       sleeveLength,
       material,
@@ -103,6 +117,7 @@ const addProduct = async (req, res) => {
     });
   }
 };
+
 // Update product information, including images
 const updateProduct = async (req, res) => {
   try {

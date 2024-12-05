@@ -22,6 +22,11 @@ const subcategorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  sortOrder: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

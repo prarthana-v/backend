@@ -4,25 +4,41 @@ const userModel = require("../models/userModel");
 const sellerModel = require("../models/sellerModel");
 
 const verifyToken = (req, res, next) => {
-  const token = req.cookies.accessToken;
-  if (!token) return res.status(403).json({ message: "Token is required" });
+  try {
+    // Retrieve token from the request headers or cookies
+    const token = req.cookies.token;
+    console.log(req.cookies);
+    console.log("Token in verifyToken", token);
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "You need to log in to access this resource.",
+      });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
 
-  jwt.verify(token, process.env.JWT_SECRETKEY, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid token" });
-    req.user = user;
+    req.user = decoded;
+    // console.log("Decoded JWT payload in IsLoggedIn middleware:", req.user);
     next();
-  });
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token. Please log in again.",
+    });
+  }
 };
 
 const IsLoggedIn = async (req, res, next) => {
   try {
     // Retrieve token from the request headers or cookies
-    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+    const token = req.cookies.token;
+    console.log(req.cookies);
     console.log("Token in IsLoggedIn", token);
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "You need to log in to access this resource for cart.",
+        message: "You need to log in to access this resource ",
       });
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
@@ -90,7 +106,7 @@ const thatverified = async (req, res, next) => {
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "You need to log in to add category.",
+        message: "You need to log in superadmin to manage categories.",
       });
     }
 

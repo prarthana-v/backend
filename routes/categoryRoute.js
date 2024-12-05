@@ -11,7 +11,9 @@ const {
   deleteCategory,
   updatedCategory,
   getCategoryById,
+  reorderCategories,
 } = require("../controller/categoryController");
+
 const cloudinary = require("cloudinary").v2;
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const multer = require("multer");
@@ -35,7 +37,7 @@ const upload = multer({
 
 router.post(
   "/add-category",
-  IsAdmin,
+  thatverified,
   upload.single("categoryImage"), // Match frontend field name
   async (req, res) => {
     console.log("Received body:", req.body);
@@ -48,7 +50,7 @@ router.get("/categories", getCategories);
 router.delete("/delete-category/:id", thatverified, deleteCategory);
 
 router.put(
-  "/update-category",
+  "/update-category/:id",
   thatverified,
   upload.single("categoryImage"),
   async (req, res) => {
@@ -59,5 +61,7 @@ router.put(
 );
 
 router.get("/getCategory/:id", getCategoryById);
+
+router.post("/reorder-categories", reorderCategories);
 
 module.exports = router;

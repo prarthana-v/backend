@@ -8,11 +8,11 @@ const {
   clearCart,
   updateItemInCart,
 } = require("../controller/CartController");
-const { IsLoggedIn } = require("../middleware/authMiddleware");
+const { IsLoggedIn, verifyToken } = require("../middleware/authMiddleware");
 
 router.post("/add-item", IsLoggedIn, addItemToCart);
 router.get("/getcart", IsLoggedIn, getCart);
-router.delete("/delete-item", IsLoggedIn, deleteCartItem);
+router.delete("/delete-item", verifyToken, deleteCartItem);
 router.delete("/clearcart", IsLoggedIn, clearCart);
 router.put("/update-item", IsLoggedIn, updateItemInCart);
 
