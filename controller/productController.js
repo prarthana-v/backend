@@ -279,9 +279,12 @@ const getProductsBySeller = async (req, res) => {
         .json({ message: "No products found for this seller." });
     }
 
-    res.status(200).json(products);
+    res.status(200).send({
+      success: true,
+      products: products,
+    });
   } catch (error) {
-    console.error(error);
+    console.error(error, "prathna");
     res
       .status(500)
       .json({ message: "Failed to fetch products. Please try again later." });
