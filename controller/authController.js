@@ -227,25 +227,6 @@ const resetPassword = async (req, res) => {
   }
 };
 
-// const logout = async (req, res) => {
-//   const token = req.cookies.accessToken; // Use the correct name here
-//   console.log("aaa", token);
-
-//   if (!token) {
-//     return res.status(400).json({
-//       success: false,
-//       message: "No token found",
-//     });
-//   }
-
-//   // Clear the access token cookie
-//   res.clearCookie("accessToken");
-//   res.status(200).json({
-//     success: true,
-//     message: "User logged out in successfully",
-//   });
-// };
-
 const getProfile = async (req, res) => {
   try {
     const token = req.cookies.token;

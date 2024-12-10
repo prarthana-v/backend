@@ -1,4 +1,6 @@
 const { validateRegisterData } = require("../../middleware/utility");
+const sellerModel = require("../../models/sellerModel");
+const userModel = require("../../models/userModel");
 const {
   registerSuperadmin,
   loginSuperadmin,
@@ -143,9 +145,79 @@ const verifySuperAdmin = async (req, res) => {
   }
 };
 
+const getAllUsers = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query; // Default to page 1, 10 users per page
+    const skip = (page - 1) * limit; // Calculate the number of users to skip
+
+    // Fetch users with pagination
+    const allUsers = await userModel.find({}).skip(skip).limit(Number(limit));
+    const totalUsers = await userModel.countDocuments(); // Get total user count
+
+    if (allUsers.length === 0) {
+      return res.status(404).send({ message: "No users found." });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "Users fetched successfully",
+      data: {
+        users: allUsers,
+        total: totalUsers,
+        page: Number(page),
+        totalPages: Math.ceil(totalUsers / limit),
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+const getAllSellers = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query; // Default to page 1, 10 users per page
+    const skip = (page - 1) * limit; // Calculate the number of users to skip
+
+    // Fetch users with pagination
+    const allSellers = await sellerModel
+      .find({})
+      .skip(skip)
+      .limit(Number(limit));
+    const totalSellers = await sellerModel.countDocuments(); // Get total user count
+
+    if (allSellers.length === 0) {
+      return res.status(404).send({ message: "No users found." });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "Sellers fetched successfully",
+      data: {
+        sellers: allSellers,
+        total: totalSellers,
+        page: Number(page),
+        totalPages: Math.ceil(totalSellers / limit),
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "Internal server error",
+      error,
+    });
+  }
+};
+
 module.exports = {
   registerSuperadminHandler,
   loginSuperadminHandler,
   verifySecretKey,
   verifySuperAdmin,
+  getAllUsers,
+  getAllSellers,
 };
