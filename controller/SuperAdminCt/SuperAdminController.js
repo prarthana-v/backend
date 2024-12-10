@@ -58,10 +58,10 @@ const loginSuperadminHandler = async (req, res) => {
     // Set the token in the cookie
     // res.clearCookie("supertoken");
     res.cookie("superloggedtoken", token, {
-      httpOnly: false,
-      secure: false,
+      httpOnly: true,
+      secure: true,
       maxAge: 10 * 60 * 1000, //10 mins
-      sameSite: "Strict",
+      sameSite: "None",
     });
 
     // Return the success response with the token
@@ -111,10 +111,10 @@ const verifySecretKey = async (req, res) => {
     );
 
     res.cookie("superverifiedtoken", newToken, {
-      httpOnly: false,
-      secure: false,
+      httpOnly: true,
+      secure: true,
       maxAge: 24 * 60 * 60 * 1000, // 1 day (in milliseconds)
-      sameSite: "Lax",
+      sameSite: "None",
     });
 
     return res.status(200).send({
