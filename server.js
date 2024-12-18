@@ -14,8 +14,8 @@ const corsOptions = {
   credentials: true, // This allows cookies to be sent
 };
 app.use(cors(corsOptions));
-///
-app.use(express.json()); // This will parse JSON body
+//http://localhost:5173
+// app.use(express.json()); // This will parse JSON body
 
 // Middleware to parse URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));

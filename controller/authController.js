@@ -47,7 +47,7 @@ const loginUser = async (req, res) => {
     const { email, password } = req.body;
     console.log(email, password);
 
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email }).populate("address");
 
     if (!user) {
       return res.status(400).send({ message: "User not found" });

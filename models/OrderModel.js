@@ -10,7 +10,7 @@ const orderSchema = new mongoose.Schema({
     {
       productId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Product", // Reference to the Product model
+        ref: "Product",
         required: true,
       },
       quantity: {
@@ -40,11 +40,12 @@ const orderSchema = new mongoose.Schema({
   },
   totalAmount: {
     type: Number,
-    required: true, // Sum of all OrderItem totals
+    required: true,
   },
   shippingAddress: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "addresses",
+    required: true,
   },
 });
 

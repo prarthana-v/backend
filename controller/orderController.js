@@ -3,16 +3,42 @@ const Product = require("../models/productModel");
 const Cart = require("../models/CartModel");
 const Seller = require("../models/sellerModel");
 const mongoose = require("mongoose");
+const Address = require("../models/AddressModel");
 
 const placeOrder = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { items, shippingAddress } = req.body;
+    const { items, shippingAddress, paymentMethod } = req.body;
+    console.log(req.user, "user", items, shippingAddress, paymentMethod);
+
+    // Verify if the shippingAddress exists
+    const addressExists = await Address.findById(shippingAddress);
+    if (!addressExists) {
+      return res.status(404).send({
+        success: false,
+        message: "Invalid shipping address ID",
+      });
+    }
+    console.log(addressExists.user.toString(), userId);
+
+    // Check if the address belongs to the logged-in user
+    if (addressExists.user.toString() !== userId) {
+      return res.status(403).send({
+        success: false,
+        message: "You are not authorized to use this address",
+      });
+    }
+
+    // Validate payment method
+    if (!paymentMethod) {
+      return res.status(400).send({
+        success: false,
+        message: "Payment method is required",
+      });
+    }
 
     // Fetch the user's cart
     const cart = await Cart.findOne({ userId }).populate("cartitems");
-    // console.log(cart);
-
     if (!cart || cart.cartitems.length === 0) {
       return res.status(404).send({
         success: false,
@@ -20,52 +46,60 @@ const placeOrder = async (req, res) => {
       });
     }
 
-    // Step 3: Prepare order items and calculate total amount
-
-    // Fetch and prepare order items
+    // Prepare order items and calculate total amount
     const orderItems = await Promise.all(
       items.map(async (item) => {
-        const product = await Product.findById(item.productId);
-        console.log(item);
-
+        // Access productId._id instead of item.productId directly
+        const product = await Product.findById(item.productId._id);
+        console.log("product", product);
         if (!product)
-          throw new Error(`Product with ID ${item.product} not found`);
+          throw new Error(`Product with ID ${item.productId._id} not found`);
 
         return {
           productId: product._id,
+          productName: item.productName, // Include product name from the payload
           quantity: item.quantity,
-          price: product.price,
+          price: item.price,
+          totalPrice: item.totalPrice,
           sellerId: product.sellerId,
         };
       })
     );
-    console.log(orderItems);
 
-    let totalAmount = orderItems.reduce((acc, item) => {
-      return acc + item.price * item.quantity;
-    }, 0);
-
+    let totalAmount = orderItems.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
     if (isNaN(totalAmount)) {
       throw new Error("Calculation error: totalAmount is NaN");
     }
 
-    // Step 5: Create new order
+    // Create new order
     const newOrder = await Order.create({
       user: userId,
       Items: orderItems,
       totalAmount,
       shippingAddress,
+      paymentMethod,
     });
-    console.log(newOrder);
 
-    // Step 7: Respond with success message and order details
-    res.status(201).json({
+    // Update stock for each product
+    await Promise.all(
+      orderItems.map(async (item) => {
+        const product = await Product.findById(item.productId);
+        product.stock -= item.quantity;
+        await product.save();
+      })
+    );
+
+    // Respond with success message
+    res.status(201).send({
+      success: true,
       message: "Order placed successfully",
       order: newOrder,
     });
   } catch (error) {
     console.log(error);
-
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -135,6 +169,7 @@ const getOrdersByUser = async (req, res) => {
     // Filter and pagination logic
     const skip = (page - 1) * limit;
     const filter = { user: new mongoose.Types.ObjectId(userId) };
+    const Address = require("../models/AddressModel");
 
     // Query the database
     const orders = await Order.find(filter)
@@ -176,6 +211,7 @@ const getOrdersBySeller = async (req, res) => {
     // Filter and pagination logic
     const skip = (page - 1) * limit;
     const filter = { "Items.sellerId": new mongoose.Types.ObjectId(sellerId) };
+    const Address = require("../models/AddressModel");
 
     // Query the database
     const orders = await Order.find(filter)

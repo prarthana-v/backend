@@ -135,7 +135,7 @@ const getCart = async (req, res) => {
       populate: {
         path: "productId",
         model: "Product", // Ensure this matches your Product model name
-        select: "images", // Adjust fields based on what you need
+        select: "images sizes", // Adjust fields based on what you need
       },
     });
 
