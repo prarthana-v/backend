@@ -65,7 +65,7 @@ router.put(
 // Delete product route
 router.delete("/delete-product", IsSeller, deleteProduct);
 router.get("/get-product", IsSeller, getSingleProduct);
-router.get("/getproductDetails/:id", getProductDetails);
+router.get("/ /:id", getProductDetails);
 router.get("/getallproducts", getAllProducts);
 router.get("/getproductsbyseller", IsSeller, getProductsBySeller);
 router.get("/by-category", getProductsByCategory);
