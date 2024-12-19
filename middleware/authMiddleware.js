@@ -165,7 +165,7 @@ const checkAuth = async () => {
 const ISUser = async (req, res, next) => {
   try {
     const token = req.cookies.token;
-    console.log("Token in User", token);
+    console.log("Token in ISUser", token);
     if (!token) {
       return res.status(401).json({
         success: false,
