@@ -14,7 +14,9 @@ const corsOptions = {
   credentials: true, // This allows cookies to be sent
 };
 app.use(cors(corsOptions));
-///https://saaraa-trends.vercel.app
+
+///
+
 app.use(express.json()); // This will parse JSON body
 
 // Middleware to parse URL-encoded bodies

@@ -336,6 +336,59 @@ const getProductsByCategory = async (req, res) => {
   }
 };
 
+const Search = async (req, res) => {
+  const { query } = req.query;
+  const page = parseInt(req.query.page) || 1;
+  console.log(req.query);
+
+  if (!query) {
+    return res.status(400).json({ message: "Search query is required" });
+  }
+
+  try {
+    // Create a case-insensitive regex pattern
+    const regex = new RegExp(query, "i"); // 'i' for case-insensitive search
+    // console.log(new RegExp(query, "i"));
+    const pageSize = 5;
+
+    const categories = await categoryModel.find({
+      categoryName: { $regex: regex },
+    });
+    const categoryIds = categories.map((c) => c._id);
+    // console.log(categories);
+
+    const subcategories = await subcategoryModel.find({
+      subcategoryName: { $regex: regex },
+    });
+    // console.log(subcategories);
+
+    // Search products, categories, and subcategories with regex
+    const products = await productModel
+      .find({
+        $or: [
+          { productName: { $regex: regex } },
+          { description: { $regex: regex } },
+          { categoryId: { $in: categoryIds } }, // Match products by category
+        ],
+      })
+      .select("productName images description categoryId") // Only return necessary fields
+      .limit(pageSize);
+    // console.log(products);
+
+    // Return the results
+    res.send({
+      success: true,
+      message: "search result",
+      products: products,
+      categories: categories,
+      subcategories: subcategories,
+    });
+  } catch (err) {
+    console.error("Error during search:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 module.exports = {
   addProduct,
   updateProduct,
@@ -345,4 +398,5 @@ module.exports = {
   getProductsBySeller,
   getProductDetails,
   getProductsByCategory,
+  Search,
 };
