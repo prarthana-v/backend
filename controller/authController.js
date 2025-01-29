@@ -67,11 +67,11 @@ const loginUser = async (req, res) => {
       process.env.JWT_SECRETKEY,
       { expiresIn: "3h" }
     );
-
+    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true,
-      sameSite: "None",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 3 * 60 * 60 * 1000,
     });
     console.log("Cookie set:", req.cookies.token);
@@ -100,7 +100,7 @@ const transporter = nodemailer.createTransport({
 const sendVerificationEmail = async (req, res) => {
   try {
     const email = req.body.email;
-    console.log(req.body.email);
+    // console.log(req.body.email);
     const user = await userModel.findOne({ email });
 
     if (!user) {
@@ -112,7 +112,7 @@ const sendVerificationEmail = async (req, res) => {
 
     // Generate a random OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(otp);
+    console.log(otp, "otp");
 
     // Generate a JWT token for password reset
     const resetToken = jwt.sign(
@@ -120,12 +120,14 @@ const sendVerificationEmail = async (req, res) => {
       process.env.JWT_SECRETKEY,
       { expiresIn: "15m" } // Token valid for 15 minutes
     );
-
+    // console.log(resetToken, "resetToken");
+    // console.log("Cookies:", req.cookies, "resetToken");
+    const isProduction = process.env.NODE_ENV === "production";
     // Store token in HTTP-only cookie
     res.cookie("resetToken", resetToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 3 * 60 * 60 * 1000, // 15 minutes
     });
 
@@ -164,7 +166,7 @@ const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
     const { resetToken } = req.cookies;
-    console.log(resetToken);
+    // console.log(resetToken, "rt from cookie");
 
     if (!resetToken) return res.status(401).send({ message: "Unauthorized" });
 
@@ -187,43 +189,49 @@ const verifyOtp = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { resetToken } = req.cookies; // Get the token from the cookie
-    const { newPassword, confirmPassword } = req.body;
+    // Check if the password reset token exists in the cookies
+    const { resetToken } = req.cookies;
 
-    if (newPassword != confirmPassword) {
-      res.status(400).send({
-        message: "passwords do not match",
-      });
+    if (!resetToken) {
+      return res.status(401).send({ message: "Unauthorized" });
     }
 
-    if (!resetToken) return res.status(401).send({ message: "Unauthorized" });
-
+    // Decode and verify the reset token
     const decoded = jwt.verify(resetToken, process.env.JWT_SECRETKEY);
 
-    const user = await userModel.findById(decoded.id);
-    console.log(decoded);
+    // Ensure the token is valid and not expired
+    if (!decoded) {
+      return res
+        .status(400)
+        .send({ message: "Invalid or expired reset token" });
+    }
+
+    // Assuming the reset password logic here
+    const { newPassword } = req.body;
+
+    // Hash the new password before saving (using bcrypt, for example)
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the user's password in the database
+    const user = await userModel.findByIdAndUpdate(decoded.id, {
+      password: hashedPassword,
+    });
 
     if (!user) {
       return res.status(404).send({ message: "User not found" });
     }
 
-    // // Hash new password and update user
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    // Update user password
-    user.password = hashedPassword;
-    await user.save();
-
-    // Clear the reset token cookie after successful password reset
     res.clearCookie("resetToken");
 
-    res
-      .status(200)
-      .send({ success: true, message: "Password has been reset successfully" });
+    // Send success response
+    return res.status(200).send({ message: "Password reset successfully!" });
   } catch (error) {
-    return res.status(500).send({
-      success: false,
-      message: error,
-    });
+    console.log(error);
+    if (!res.headersSent) {
+      return res
+        .status(500)
+        .send({ message: "An error occurred during password reset" });
+    }
   }
 };
 
@@ -359,11 +367,11 @@ const updateUser = async (req, res) => {
     });
   }
 };
-const logout = async (req, res) => {
+const logout = (req, res) => {
   try {
-    console.log("Cookies:", req.cookies.token, "logout"); // For cookies
-    // Clear the cookie containing the token
-    res.clearCookie("token", { httpOnly: true, secure: true });
+    console.log("Cookies:", req.cookies, "sellerlogout");
+    const isProduction = process.env.NODE_ENV === "production";
+    res.clearCookie("token", { httpOnly: true, secure: isProduction });
     return res
       .status(200)
       .json({ success: true, message: "Logout successful" });
@@ -374,6 +382,7 @@ const logout = async (req, res) => {
       .json({ success: false, message: "Internal Server Error" });
   }
 };
+
 module.exports = {
   registerUser,
   loginUser,

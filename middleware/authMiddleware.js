@@ -7,8 +7,8 @@ const verifyToken = (req, res, next) => {
   try {
     // Retrieve token from the request headers or cookies
     const token = req.cookies.token;
-    console.log(req.cookies);
-    console.log("Token in verifyToken", token);
+    // console.log(req.cookies);
+    // console.log("Token in verifyToken", token);
     if (!token) {
       return res.status(401).json({
         success: false,
@@ -33,8 +33,8 @@ const IsLoggedIn = async (req, res, next) => {
   try {
     // Retrieve token from the request headers or cookies
     const token = req.cookies.token;
-    console.log(req.cookies);
-    console.log("Token in IsLoggedIn", token);
+    // console.log(req.cookies);
+    // console.log("Token in IsLoggedIn", token);
     if (!token) {
       return res.status(401).json({
         success: false,

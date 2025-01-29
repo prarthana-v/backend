@@ -9,6 +9,7 @@ const {
   getProductsBySeller,
   getProductDetails,
   Search,
+  getProductsBySubategory,
 } = require("../controller/productController");
 const router = express.Router();
 const cloudinary = require("cloudinary").v2;
@@ -70,6 +71,7 @@ router.get("/getproductDetails/:id", getProductDetails);
 router.get("/getallproducts", getAllProducts);
 router.get("/getproductsbyseller", IsSeller, getProductsBySeller);
 router.get("/by-category", getProductsByCategory);
+router.get("/by-subcategory", getProductsBySubategory);
 router.get("/search", Search);
 
 module.exports = router;

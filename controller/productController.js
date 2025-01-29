@@ -2,6 +2,8 @@ const productModel = require("../models/productModel");
 const categoryModel = require("../models/categoryModel");
 const subcategoryModel = require("../models/subcategoryModel");
 const cloudinary = require("cloudinary");
+const mongoose = require("mongoose");
+
 const addProduct = async (req, res) => {
   try {
     const sellerId = req.seller._id; // Authenticated seller ID
@@ -34,7 +36,7 @@ const addProduct = async (req, res) => {
       !skuid ||
       !mrp
     ) {
-      return res.status(400).json({
+      return res.status(400).send({
         success: false,
         message:
           "Missing required fields: productName, category, price, mrp, skuid, description, or stock.",
@@ -43,7 +45,7 @@ const addProduct = async (req, res) => {
 
     // Validate price and stock
     if (price <= 0 || stock < 0) {
-      return res.status(400).json({
+      return res.status(400).send({
         success: false,
         message: "Price must be greater than 0 and stock cannot be negative.",
       });
@@ -57,7 +59,7 @@ const addProduct = async (req, res) => {
     if (!categoryFound) {
       return res
         .status(404)
-        .json({ success: false, message: "Category not found." });
+        .send({ success: false, message: "Category not found." });
     }
 
     const subcategoryFound = subcategory
@@ -67,14 +69,14 @@ const addProduct = async (req, res) => {
     if (subcategory && !subcategoryFound) {
       return res
         .status(404)
-        .json({ success: false, message: "Subcategory not found." });
+        .send({ success: false, message: "Subcategory not found." });
     }
 
     // Validate file uploads
     if (!req.files || req.files.length === 0) {
       return res
         .status(400)
-        .json({ success: false, message: "No files uploaded." });
+        .send({ success: false, message: "No files uploaded." });
     }
 
     const imageUrls = req.files.map((file) => file.path); // Collect image URLs
@@ -103,21 +105,20 @@ const addProduct = async (req, res) => {
       packerDetails,
     });
 
-    res.status(201).json({
+    res.status(201).send({
       success: true,
       message: "Product created successfully.",
       data: newProduct,
     });
   } catch (error) {
     console.error("Error in addProduct:", error);
-    res.status(500).json({
+    res.status(500).send({
       success: false,
       message: "Server error. Please try again later.",
       error: error.message,
     });
   }
 };
-
 // Update product information, including images
 const updateProduct = async (req, res) => {
   try {
@@ -146,7 +147,7 @@ const updateProduct = async (req, res) => {
     if (!product) {
       return res
         .status(404)
-        .json({ success: false, message: "Product not found" });
+        .send({ success: false, message: "Product not found" });
     }
 
     // If new images are provided, upload them to Cloudinary
@@ -183,10 +184,10 @@ const updateProduct = async (req, res) => {
     // Save the updated product
     await product.save();
 
-    res.status(200).json({ success: true, data: product });
+    res.status(200).send({ success: true, data: product });
   } catch (error) {
     console.error("Error in updateProduct:", error);
-    res.status(500).json({ success: false, message: "Server error", error });
+    res.status(500).send({ success: false, message: "Server error", error });
   }
 };
 
@@ -234,14 +235,14 @@ const getSingleProduct = async (req, res) => {
     if (!product) {
       return res
         .status(404)
-        .json({ success: false, message: "Product not found" });
+        .send({ success: false, message: "Product not found" });
     }
 
     // Return the product
-    res.status(200).json({ success: true, data: product });
+    res.status(200).send({ success: true, data: product });
   } catch (error) {
     console.error("Error in getSingleProduct:", error);
-    res.status(500).json({ success: false, message: "Server error", error });
+    res.status(500).send({ success: false, message: "Server error", error });
   }
 };
 
@@ -254,7 +255,7 @@ const getAllProducts = async (req, res) => {
     if (!products) {
       return res
         .status(404)
-        .json({ success: false, message: "Products not found" });
+        .send({ success: false, message: "Products not found" });
     }
 
     // Return all products
@@ -276,7 +277,7 @@ const getProductsBySeller = async (req, res) => {
     if (!products || products.length === 0) {
       return res
         .status(404)
-        .json({ message: "No products found for this seller." });
+        .send({ message: "No products found for this seller." });
     }
 
     res.status(200).send({
@@ -287,7 +288,7 @@ const getProductsBySeller = async (req, res) => {
     console.error(error, "prathna");
     res
       .status(500)
-      .json({ message: "Failed to fetch products. Please try again later." });
+      .send({ message: "Failed to fetch products. Please try again later." });
   }
 };
 
@@ -297,42 +298,85 @@ const getProductDetails = async (req, res) => {
     const product = await productModel.findById(productId);
 
     if (!product) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).send({ message: "Product not found" });
     }
 
-    res.status(200).json(product);
+    res.status(200).send(product);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).send({ message: "Server error" });
   }
 };
 
 const getProductsByCategory = async (req, res) => {
   try {
-    const categoryName = req.query.categoryName; // Pass categoryName as a query parameter
-    // console.log("Category Name:", categoryName);
-
+    const categoryName = req.query.categoryName; // Pass categoryName as a query paramete
     if (!categoryName) {
       return res
         .status(400)
-        .json({ success: false, message: "Category name is required." });
+        .send({ success: false, message: "Category name is required." });
     }
 
     const products = await productModel.find({
-      categoryName: categoryName, // Case-insensitive match
+      categoryName: categoryName,
     });
 
     if (products.length === 0) {
-      return res.status(404).json({
+      return res.status(404).send({
         success: false,
         message: "No products found for this category.",
       });
     }
 
-    res.status(200).json({ success: true, data: products });
+    // Get the total count of products
+    res.status(200).send({ success: true, data: products });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error", error });
+    console.log(error);
+    res.status(500).send({ success: false, message: "Server error", error });
+  }
+};
+
+const getProductsBySubategory = async (req, res) => {
+  try {
+    const { subcategoryName, color } = req.query; // Pass categoryName as a query paramete
+    console.log(subcategoryName, color, "scn");
+    if (!subcategoryName) {
+      return res
+        .status(400)
+        .send({ success: false, message: "subcategory name is required." });
+    }
+
+    const filter = { subcategoryName };
+    if (color) {
+      filter.color = { $in: color.split(",") }; // Use $in operator for multiple values
+    }
+
+    console.log(filter, "filter");
+    // const products = await productModel
+    //   .find({
+    //     subcategoryName,
+    //   })
+    //   .select("productName images categoryName color");
+
+    const products = await productModel
+      .find(filter)
+      .select("productName images categoryName price color");
+
+    console.log(products, "products");
+
+    if (products.length === 0) {
+      return res.status(404).send({
+        success: false,
+        message:
+          "No products found for this subcategory with the applied filters.",
+      });
+    }
+
+    // Get the total count of products
+    res.status(200).send({ success: true, data: products });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ success: false, message: "Server error", error });
   }
 };
 
@@ -342,7 +386,7 @@ const Search = async (req, res) => {
   console.log(req.query);
 
   if (!query) {
-    return res.status(400).json({ message: "Search query is required" });
+    return res.status(400).send({ message: "Search query is required" });
   }
 
   try {
@@ -385,7 +429,7 @@ const Search = async (req, res) => {
     });
   } catch (err) {
     console.error("Error during search:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).send({ message: "Server error" });
   }
 };
 
@@ -398,5 +442,6 @@ module.exports = {
   getProductsBySeller,
   getProductDetails,
   getProductsByCategory,
+  getProductsBySubategory,
   Search,
 };

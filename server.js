@@ -10,16 +10,15 @@ connectDB();
 
 const cors = require("cors");
 const corsOptions = {
-  origin: "https://saaraa-trends.vercel.app",
-  credentials: true, // This allows cookies to be sent
+  origin: [
+    "http://localhost:5173",
+    "http://192.168.29.58:5173",
+    "https://saaraa-trends.vercel.app",
+  ],
+  credentials: true,
 };
 app.use(cors(corsOptions));
-
-///
-
-app.use(express.json()); // This will parse JSON body
-
-// Middleware to parse URL-encoded bodies
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/", require("./routes/indexRoute"));

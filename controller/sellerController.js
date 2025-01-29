@@ -38,6 +38,7 @@ const registerSeller = async (req, res) => {
       email,
       password: hashedPassword,
     });
+    console.log(newSeller, "newSeller");
 
     // Save to the database
     await newSeller.save();
